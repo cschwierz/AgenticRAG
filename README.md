@@ -11,7 +11,7 @@ Agentic RAG with chat interface and internal vector database.
 ```bash
 git config --global http.sslVerify false
 
-git clone https://git.fft-it.de/cs40004/LogfileAnalyzer.git
+git clone [https://git.fft-it.de/cs40004/LogfileAnalyzer.git](https://github.com/cschwierz/AgenticRAG.git)
 
 git config --global http.sslVerify true
 
