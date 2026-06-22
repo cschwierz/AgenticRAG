@@ -2,6 +2,7 @@
   "FILES_PATH": "C:\\Users\\chris\\Documents\\Workspace\\LogfileAnalyzer\\logfile-sammlung\\",
 
   "LLM_MODEL": "gemma4",
+  "FAST_LLM_MODEL": "qwen3:4b",
   "SYSTEM_PROMPT_PATH": "C:\\Users\\chris\\Documents\\Workspace\\LogfileAnalyzer\\config\\system_prompt.txt",
   "CLASSIFIER_PROMPT_PATH": "C:\\Users\\chris\\Documents\\Workspace\\LogfileAnalyzer\\config\\classifier_prompt.txt",
   "RETRIEVER_PROMPT_PATH": "C:\\Users\\chris\\Documents\\Workspace\\LogfileAnalyzer\\config\\retriever_prompt.txt",
