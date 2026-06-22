@@ -86,7 +86,7 @@ The Retrieve Agent has an isolated context window so that it doesnt bloat the co
 
 <img src="./doku/graph-framework_11-06-26.drawio.png" width="500" style="background-color:white;" />
 
-*Note: the Retrieve Graph can not see the Message History of the Main Graph. It only receives the last message as input and returns his results in a schema. On every Invoke the Retrieve Graph wipes its internal Message History.*
+*Note: the Retrieve Graph can not see the Message History of the Main Graph if being invoked by the Orchestrator. It only receives the tool call as input and returns his results in a schema. On every Invoke the Retrieve Graph wipes its internal Message History. this is so that in strategy C the orchestrator can attempt multiple retrievals while keeping his context window clean*
 
 **pipeline for retrieval**
 

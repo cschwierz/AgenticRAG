@@ -1,0 +1,16 @@
+{
+  "FILES_PATH": "C:\\Users\\cs40004\\Desktop\\test\\logfile-sammlung\\",
+
+  "LLM_MODEL": "gemma4",
+  "FAST_LLM_MODEL": "qwen3:4b",
+  "SYSTEM_PROMPT_PATH": "C:\\Users\\cs40004\\Desktop\\test\\config\\system_prompt.txt",
+  "CLASSIFIER_PROMPT_PATH": "C:\\Users\\cs40004\\Desktop\\test\\config\\classifier_prompt.txt",
+  "RETRIEVER_PROMPT_PATH": "C:\\Users\\cs40004\\Desktop\\test\\config\\retriever_prompt.txt",
+  "REFLECT_PROMPT_PATH": "C:\\Users\\cs40004\\Desktop\\test\\config\\reflect_prompt.txt",
+  "MAX_REFLECTIONS": 5,
+  "MIN_REFLECTIONS": 0,
+  "PATTERN_GENERATOR_PROMPT_PATH": "C:\\Users\\cs40004\\Desktop\\test\\config\\pattern_generator_prompt.txt",
+  "MAX_RETRIEVAL": 2000,
+  "MANUAL_PATH": "C:\\Users\\cs40004\\Desktop\\test\\config\\manual.md",
+  "QUERY_SAMPLE": "search for errors between 00:00 to 04:00 and create a statistic table summary with the errors and its timestamps"
+}

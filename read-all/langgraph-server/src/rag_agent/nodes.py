@@ -1,10 +1,8 @@
 # Description: Define Nodes, Edges and Message States
 # Todo:
-
+# prompt engineering oder model training für besseren context
 # graph-framework auf stand von langgraph-server bringen
-# retrieve tool aufteilen zu search_headers und retrieve_logfile_by_index
-# response time verbessern
-# Refactoring Prompts - Data Schema zentral definieren mit few shots template
+# tool / node zum ändern des document path hinzufügen
 """
 ================================================================================
                            MODUL: nodes.py
@@ -69,8 +67,8 @@ from rag_agent.logfile_retriever import *
 
 # --- Config ---
 
-#with open("/home/chris/LogfileAnalyzer/config/config.json", "r") as filejson:
-with open("C:\\Users\\chris\\Documents\\Workspace\\LogfileAnalyzer\\config\\config_win.json", "r") as filejson:
+with open("/home/chris/LogfileAnalyzer/read-all/config/config.json", "r") as filejson:
+#with open("C:\\Users\\chris\\Desktop\\read-all\\config\\config_win.json", "r") as filejson:
     config = json.load(filejson)
 
 SYSTEM_PROMPT_PATH = config["SYSTEM_PROMPT_PATH"]
@@ -318,6 +316,25 @@ def ingest_logfile_node(state: MessageState):
         "headers": headers,
     }
 
+def test_retrieve_node(state: MessageState):
+    """this node let the LLM scan trough the entire logfile and returns all lines by its relevance to the query"""
+
+    print(f"\n[DEBUG nodes.py test_retrieve_node] node invoked")
+
+    query = state["messages"][-1].content
+
+    context = retrieve_logfile_tool.invoke({"query": query, "lines": state["lines"]})
+
+    return_message = []
+    
+    return_message.append(HumanMessage(content=f"Retrieved logfile:\n\n{context}"))
+
+    return {"messages": return_message}
+
+
+
+
+
 
 # --- Parent Conditional Edges ---
 
@@ -352,13 +369,13 @@ def tool_call_edge(state: MessageState) -> Literal["retrieve_graph", "tool_node"
 
     return "reflect_node"
 
-def classify_edge(state: MessageState) -> Literal["llm_node", "retrieve_graph", "orchestrator_node"]:
+def classify_edge(state: MessageState) -> Literal["test_retrieve_node", "retrieve_graph", "orchestrator_node"]:
     """routing the query based classifier choice"""
 
     print(f"\n[DEBUG nodes.py classify_edge] edge invoked")
 
     if state["classify"] == "A":
-        return "llm_node"
+        return "test_retrieve_node"
     
     if state["classify"] == "B":
         return "retrieve_graph"

@@ -41,8 +41,8 @@ from typing import Any, Dict, List, Optional, Tuple
 
 # --- Config ---
 
-with open("/home/chris/LogfileAnalyzer/config/config.json", "r") as filejson:
-#with open("C:\\Users\\chris\\Documents\\Workspace\\LogfileAnalyzer\\config\\config_win.json", "r") as filejson:
+with open("/home/chris/LogfileAnalyzer/read-all/config/config.json", "r") as filejson:
+#with open("C:\\Users\\chris\\Desktop\\read-all\\config\\config_win.json", "r") as filejson:
     config = json.load(filejson)
 
 FILES_PATH = config["FILES_PATH"]
@@ -69,7 +69,10 @@ class LogFile:
 
         self.FILE = self.file[0].page_content
 
-        self.LINES = self.FILE.split("\n")
+        raw_lines = self.FILE.split("\n")
+        
+        self.LINES = [f"{idx} {line}" for idx, line in enumerate(raw_lines, start=0)]
+
         print(f"\n[DEBUG logfile_retriever_pipeline LogFile] created {len(self.LINES)} lines for {file_path}")
 
 @dataclass

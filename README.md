@@ -4,6 +4,25 @@ Agentic RAG with chat interface specialized for analysis on Logfiles.
 
 *This repo is a sanitized copy of my Bachelor Praxisphase. In order to use it, you need to configure "Data Schema" in the parser and prompts to your specific Logfiles and add few shot examples. Unfortunatelly Data Schema is not locally defined, but distributed over the Workspace*
 
+**Current State of LogfileAnalyzer**:
+
+graph-framework/ is the same as in branch multi-agentic-adaptive-rag-1
+
+langgraph-server/ has the following changes:
+
+- the ingest and retrieve functions have been replaced by an implementation from chatgpt
+- the reflect node has been reduced to a boolean that checks if the agent gave the final answer.
+- MAX & MIN_ITERATIONS have been disabled
+- reflect node has been added to the subagent
+- subagent now can see the messages state when invoked as classify B
+
+Known Bugs & Fehler in Logfile Analyzer Agent stand 17.06.2026
+-	Ingestion parser nicht anpassbar (auf logfile & query)
+-	Retrieve tool returns entweder zu viel oder kein context
+-	Architektur gpt retrieve tool unbekannt
+-	Reflect endless loop
+
+
 ---
 
 ## TOC:

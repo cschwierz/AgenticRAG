@@ -39,6 +39,7 @@ from ast import parse
 from langchain.tools import tool
 from langchain_ollama import ChatOllama
 from langchain.agents import create_agent
+from langchain.messages import SystemMessage, ToolMessage, HumanMessage, AIMessage, AnyMessage
 import os
 import json
 import re
@@ -54,8 +55,8 @@ from rag_agent.logfile_retriever import (
 
 # --- Config ---
 
-#with open("/home/chris/LogfileAnalyzer/config/config.json", "r") as filejson:
-with open("C:\\Users\\chris\\Documents\\Workspace\\LogfileAnalyzer\\config\\config_win.json", "r") as filejson:
+with open("/home/chris/LogfileAnalyzer/read-all/config/config.json", "r") as filejson:
+#with open("C:\\Users\\chris\\Desktop\\read-all\\config\\config_win.json", "r") as filejson:
     config = json.load(filejson)
 
 # - subagent -
@@ -75,8 +76,9 @@ FAST_LLM_MODEL = config["FAST_LLM_MODEL"]
 
 # --- Models ---
 
-model = ChatOllama(model=LLM_MODEL, temperature=1, top_k=20, top_p=0.95)
-fast_model = ChatOllama(model=FAST_LLM_MODEL, reasoning=False, temperature=0.6, top_k=20, top_p=0.95)
+model = ChatOllama(model=LLM_MODEL, temperature=1, top_k=64, top_p=0.95)
+medium_model = ChatOllama(model=LLM_MODEL, reasoning=False, temperature=0, top_k=64, top_p=0.95)
+fast_model = ChatOllama(model=FAST_LLM_MODEL, reasoning=False, temperature=0, top_k=20, top_p=0.95)
 
 # --- Tools ---
 
@@ -197,24 +199,69 @@ def retrieve_logfile_tool(query: str, lines: list = None, headers: list = None) 
     print(f"\n[DEBUG tools.py retrieve_logfile_tool] tool invoked")
 
     print(f"\n[DEBUG tools.py retrieve_logfile_tool] query received: {query}")
-    """
-    full_messages = PATTERN_GENERATOR_PROMPT + f"Go Ahead!\nInput: {query}\nRegex:"
 
-    pattern = regex_model.invoke(full_messages)
+    buffer = []
 
-    print(f"\n[DEBUG tools.py retrieve_logfile_tool] pattern generated: {pattern.regex_pattern}")
+    chunk_size = 1000
+    chunk_overlap = 50
+    n = 0
+    m = chunk_size
+    len_lines = len(lines)
 
-    matches = search_header(headers, pattern.regex_pattern)
+    for x in range(0, len_lines, chunk_size-chunk_overlap):
 
-    logdata = retrieve_logfile(matches, lines)
-
-    return logdata"""
-
-    result = retrieve_logfile_by_query(query=query, lines=lines or [], headers=headers or [])
+        prompt = r"""
+**SYSTEM PROMPT**
     
-    #print(f"\n[DEBUG tools.py retrieve_logfile_tool] retrieved\n: {result}")
+You are a specialized log analysis assistant. 
+Your task is to identify and extract the index of every logfile line that is semantically relevant to synthesize the user's query.
+
+Instructions:
+1. Carefully analyze each log entry provided.
+2. If a line is relevant to the query, include its index in your output.
+3. Be severe with the relevance of the line.
+4. If no lines are relevant, output an empty list: []
+5. Do not include any text, explanations, or metadata in your output. Only return the requested list of index.
+6. Be severe with your output. {"index": [...]}
+
+The log entries use the format: {index} {timestamp} {type} : {content}
+        """
+        # IMPORTANT prompting a structured output in langchain with:
+        # gemma4, you must include an example: 6. Be severe with your output. Example: {"index": [123, 345]}
+        # qwen and nemotron, you must include a template: 6. Be severe with your output. {"index": [...]}
+        # also, be severe with the name of the key, when mentioning it in the Prompt or Format description
+        # in this example, literally call it "index" - never "indexes", "indices", whatever
+
+        lines_messages = "\n".join(lines[n:m])
+
+        full_messages = [
+            SystemMessage(content=prompt),
+            HumanMessage(content=f"<query>\n{query}\n</query>\n\n" + f"<logfile>\n{lines_messages}\n</logfile>\n\n")
+        ]
+
+        response_messages = reader_model.invoke(full_messages)
+
+        print(f"\n[DEBUG tools.py retrieve_logfile_tool] q&a for index {n} to {m}:\n\n{full_messages}\n\n{response_messages.index}")
+
+        for ind in response_messages.index:
+            if ind not in buffer:
+                buffer.append(ind)
+
+        print(f"\n[DEBUG tools.py retrieve_logfile_tool] buffer:{buffer}")
+
+        n = n + chunk_size - chunk_overlap
+        m = m + chunk_size - chunk_overlap
+
+        print(f"\n[DEBUG tools.py retrieve_logfile_tool] progress:{100/len_lines*x}%")
+
+    print(f"\n[DEBUG tools.py retrieve_logfile_tool] buffers of relevance: {buffer[:]}")
+    tempdata = []
+    for buf in buffer[0:]:
+        tempdata.append(lines[buf])
     
-    return result
+    logdata = "\n".join(tempdata)
+
+    return logdata
 
 
 # --- Augment Model with Tools / Agents ---
@@ -233,13 +280,20 @@ classifier_model = fast_model.with_structured_output(ClassifierState)
 class ReflectState(BaseModel):
     final_answer: bool = Field(description="is the query answered?")
 
-reflect_model = model.with_structured_output(ReflectState)
+reflect_model = fast_model.with_structured_output(ReflectState)
 
 
 class PatternState(BaseModel):
     regex_pattern: str = Field(description="The final, optimized Python regex pattern.")
 
 regex_model = fast_model.with_structured_output(PatternState)
+
+
+class BufferState(BaseModel):
+    index: list[int] = Field(description="A list of unique index representing the index of each relevant log line. index: list[int]")
+    
+reader_model = fast_model.with_structured_output(BufferState, method="json_mode")
+
 
 
 orchestrator_model = model.bind_tools(tools, tool_choice="auto")

@@ -33,8 +33,8 @@ import json
 
 # --- Configs ---
 
-#with open("/home/chris/LogfileAnalyzer/config/config.json", "r") as filejson:
-#with open("C:\\Users\\chris\\Documents\\Workspace\\LogfileAnalyzer\\config\\config_win.json", "r") as filejson:
+# with open("/home/chris/LogfileAnalyzer/config/config.json", "r") as filejson:
+# with open("C:\\Users\\chris\\Documents\\Workspace\\LogfileAnalyzer\\config\\config_win.json", "r") as filejson:
 #    config = json.load(filejson)
 
 # QUERY_SAMPLE = config["QUERY_SAMPLE"]
@@ -69,11 +69,13 @@ graph_builder.add_node("classifier_node", classifier_node)
 graph_builder.add_node("tool_node", tool_node)
 graph_builder.add_node("retrieve_graph", retrieve_graph)
 graph_builder.add_node("reflect_node", reflect_node)
+graph_builder.add_node("test_retrieve_node", test_retrieve_node)
 
 graph_builder.add_edge(START, "check_command_node")
 graph_builder.add_conditional_edges("check_command_node", strategy_edge, ["classifier_node", "ingest_logfile_node", END])
 graph_builder.add_edge("ingest_logfile_node", END)
-graph_builder.add_conditional_edges("classifier_node",classify_edge,["llm_node", "retrieve_graph", "orchestrator_node"],)
+graph_builder.add_conditional_edges("classifier_node",classify_edge,["test_retrieve_node", "retrieve_graph", "orchestrator_node"],)
+graph_builder.add_edge("test_retrieve_node", "llm_node")
 graph_builder.add_edge("llm_node", END)
 graph_builder.add_conditional_edges("orchestrator_node", tool_call_edge, ["retrieve_graph", "tool_node", "reflect_node"])
 graph_builder.add_edge("tool_node", "orchestrator_node")
