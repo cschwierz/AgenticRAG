@@ -1,0 +1,15 @@
+{
+  "FILES_PATH": "/home/chris/LogfileAnalyzer/logfile-sammlung/",
+
+  "LLM_MODEL": "gemma4:31b",
+  "SYSTEM_PROMPT_PATH": "/home/chris/LogfileAnalyzer/config/system_prompt.txt",
+  "CLASSIFIER_PROMPT_PATH": "/home/chris/LogfileAnalyzer/config/classifier_prompt.txt",
+  "RETRIEVER_PROMPT_PATH": "/home/chris/LogfileAnalyzer/config/retriever_prompt.txt",
+  "REFLECT_PROMPT_PATH": "/home/chris/LogfileAnalyzer/config/reflect_prompt.txt",
+  "MAX_REFLECTIONS": 5,
+  "MIN_REFLECTIONS": 0,
+  "PATTERN_GENERATOR_PROMPT_PATH": "/home/chris/LogfileAnalyzer/config/pattern_generator_prompt.txt",
+  "MAX_RETRIEVAL": 5000,
+  "MANUAL_PATH": "/home/chris/LogfileAnalyzer/config/manual.md",
+  "QUERY_SAMPLE": "make a statistic summary table on errors and warnings between 9:15 and 9:20"
+}

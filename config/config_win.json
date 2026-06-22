@@ -1,0 +1,15 @@
+{
+  "FILES_PATH": "C:\\Users\\chris\\Documents\\Workspace\\LogfileAnalyzer\\logfile-sammlung\\",
+
+  "LLM_MODEL": "gemma4",
+  "SYSTEM_PROMPT_PATH": "C:\\Users\\chris\\Documents\\Workspace\\LogfileAnalyzer\\config\\system_prompt.txt",
+  "CLASSIFIER_PROMPT_PATH": "C:\\Users\\chris\\Documents\\Workspace\\LogfileAnalyzer\\config\\classifier_prompt.txt",
+  "RETRIEVER_PROMPT_PATH": "C:\\Users\\chris\\Documents\\Workspace\\LogfileAnalyzer\\config\\retriever_prompt.txt",
+  "REFLECT_PROMPT_PATH": "C:\\Users\\chris\\Documents\\Workspace\\LogfileAnalyzer\\config\\reflect_prompt.txt",
+  "MAX_REFLECTIONS": 5,
+  "MIN_REFLECTIONS": 0,
+  "PATTERN_GENERATOR_PROMPT_PATH": "C:\\Users\\chris\\Documents\\Workspace\\LogfileAnalyzer\\config\\pattern_generator_prompt.txt",
+  "MAX_RETRIEVAL": 2000,
+  "MANUAL_PATH": "C:\\Users\\chris\\Documents\\Workspace\\LogfileAnalyzer\\config\\manual.md",
+  "QUERY_SAMPLE": "search for errors between 00:00 to 04:00 and create a statistic table summary with the errors and its timestamps"
+}

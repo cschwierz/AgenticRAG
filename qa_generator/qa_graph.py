@@ -1,11 +1,11 @@
-# Description: Graph workflow
+# Description: this graph generates n question and answer pairs for the pattern generator llm
 """
 ================================================================================
-                           MODUL: graph.py
+                           MODUL: q-a_generator.py
 ================================================================================
 
 BESCHREIBUNG:
-    Definiert den Graph & verbindet die Nodes
+    erstellt q&a pairs für pattern generator llm zum erstellen von Examples im pattern_generator_prompt.txt und tool description
 
 TABLE OF CONTENTS:
     1. Imports
@@ -27,17 +27,18 @@ CHANGELOG:
 # --- Imports ---
 
 from langgraph.graph import StateGraph, START, END
-from rag_agent.nodes import *
+from langchain.messages import HumanMessage
+from qa_nodes import *
 import os
 import json
 
 # --- Configs ---
 
 #with open("/home/chris/LogfileAnalyzer/config/config.json", "r") as filejson:
-#with open("C:\\Users\\chris\\Documents\\Workspace\\LogfileAnalyzer\\config\\config_win.json", "r") as filejson:
-#    config = json.load(filejson)
+with open("C:\\Users\\chris\\Documents\\Workspace\\LogfileAnalyzer\\config\\config_win.json", "r") as filejson:
+    config = json.load(filejson)
 
-# QUERY_SAMPLE = config["QUERY_SAMPLE"]
+QUERY_SAMPLE = config["QUERY_SAMPLE"]
 
 # --- Graphs ---
 
@@ -80,11 +81,38 @@ graph_builder.add_conditional_edges("reflect_node", reflect_edge, ["orchestrator
 
 graph = graph_builder.compile()
 
-# print(agent.get_graph().draw_mermaid())
-# print(agent.get_graph().draw_ascii())
+
+qa_builder = StateGraph(QAGenState)
+
+qa_builder.add_node("question_generator_node", question_generator_node)
+qa_builder.add_node("answer_generator_node", answer_generator_node)
+qa_builder.add_node("validator_node", validator_node)
+qa_builder.add_node("final_summary_node", final_summary_node)
+qa_builder.add_node("qa_ingest_logfile_node", qa_ingest_logfile_node)
+
+qa_builder.add_edge(START, "qa_ingest_logfile_node")
+qa_builder.add_edge("qa_ingest_logfile_node", "question_generator_node")
+qa_builder.add_edge("question_generator_node", "answer_generator_node")
+qa_builder.add_edge("answer_generator_node", "validator_node")
+qa_builder.add_conditional_edges("validator_node", loop_edge, ["question_generator_node", "final_summary_node"])
+qa_builder.add_edge("final_summary_node", END)
+
+qa = qa_builder.compile()
 
 # --- Invoke ---
-# messages = [HumanMessage(content=f"{QUERY_SAMPLE}")]
-# messages = agent.invoke({"messages": messages})
-# for m in messages["messages"]:
-#    m.pretty_print()
+messages = [HumanMessage(content=f"Go Ahead!")]
+messages = qa.invoke({"messages": messages, "good_iteration": 0, "bad_iteration": 0})
+#messages = qa.invoke({"messages": messages})
+for m in messages["messages"]:
+    m.pretty_print()
+
+"""
+print(graph.get_graph().draw_mermaid())
+print(graph.get_graph().draw_ascii())
+
+# --- Invoke ---
+messages = [HumanMessage(content=f"{QUERY_SAMPLE}")]
+messages = graph.invoke({"messages": messages})
+for m in messages["messages"]:
+    m.pretty_print()
+"""

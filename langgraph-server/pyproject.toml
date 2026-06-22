@@ -1,11 +1,12 @@
 [project]
-name = "rag-agent"
+name = "simple-agent-template"
 version = "0.1.0"
-description = "LangChain RAG-Agent running locally"
+description = "Minimal LangChain agent template for LangSmith/LangGraph deployment"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "black>=26.3.1",
+    "grandalf>=0.8",
     "langchain>=1.0.0",
     "langchain-chroma>=1.1.0",
     "langchain-community>=0.4.1",
@@ -30,4 +31,4 @@ dev = [
 
 [tool.uv.build-backend]
 module-name = "rag_agent"
-source-include = ["langgraph.json", ".env.example", "Makefile", "tests/**", "src/**"]
+source-include = ["langgraph.json", ".env.example", "Makefile", "tests/**"]

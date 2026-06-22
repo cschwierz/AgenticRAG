@@ -1,8 +1,18 @@
-# Project Agentic RAG
+# LogfileAnalyzer Agent Setup & Usage
 
-Agentic RAG with chat interface and internal vector database.
+Agentic RAG with chat interface specialized for analysis on Logfiles.
+
+*This repo is a sanitized copy of my Bachelor Praxisphase. In order to use it, you need to configure "Data Schema" in the parser and prompts to your specific Logfiles and add few shot examples. Unfortunatelly Data Schema is not locally defined, but distributed over the Workspace*
 
 ---
+
+## TOC:
+
+[Installation](#installation)
+
+[Usage](#usage)
+
+[Troubleshooting](#troubleshooting)
 
 ## Installation
 
@@ -11,7 +21,7 @@ Agentic RAG with chat interface and internal vector database.
 ```bash
 git config --global http.sslVerify false
 
-git clone https://github.com/cschwierz/AgenticRAG.git
+git clone https://git.fft-it.de/cs40004/LogfileAnalyzer.git
 
 git config --global http.sslVerify true
 
@@ -19,7 +29,7 @@ cd LogfileAnalyzer/
 
 ```
 
-*add agent-chat-ui to workspace*
+**add agent-chat-ui to workspace**
 
 ```bash
 git clone https://github.com/langchain-ai/agent-chat-ui.git
@@ -31,9 +41,25 @@ pnpm install
 pnpm exec next telemetry disable
 ```
 
-*for further documentation visit [Agent Chat UI](https://docs.langchain.com/oss/python/langchain/ui) on LangChain Docs*
+> *for further documentation visit [Agent Chat UI](https://docs.langchain.com/oss/python/langchain/ui) on LangChain Docs*
 
-**Set variables** `DB_PATH` & `DOCUMENT_PATH` in rag-pipeline/ chroma-db/ and langgraph-server/ in all .py scripts (or .env files) to your device.
+**add mod to agent-chat-ui**
+
+from `mod-agent-chat-ui/` copy and paste `index.tsx` and `use-file-upload.tsx` inside agent-chat-ui to the following paths:
+
+```
+agent-chat-ui\src\components\thread\index.tsx
+
+agent-chat-ui\src\hooks\use-file-upload.tsx
+```
+
+**Set variables & filepaths:**
+
+In `config.json` and `config_win.json` set the absolute filepaths to every variable.
+
+From langgraph-server/ in all .py scripts in the `# --- Config ---` section set the absolute filepath to `config.json` or `config_win.json` 
+
+> (*graph-framework/, prompt-engineer/ and qa_generator/ are not needed to run the Agent, however, these folders are for testing and prompt generating. Setting up these folders is completely optional*)
 
 **Install software (LangChain, Ollama on Linux):**
 
@@ -45,31 +71,34 @@ pip install -U langchain langgraph langgraph-cli langchain-chroma langchain-olla
 curl -fsSL https://ollama.com/install.sh | sh
 
 ```
-*for further documentation visit [Install LangChain](https://docs.langchain.com/oss/python/langchain/install) & [Install LangGraph](https://docs.langchain.com/oss/python/langgraph/install) on LangChain Docs or [Download Ollama](https://ollama.com/download)*
+> *for further documentation visit [Install LangChain](https://docs.langchain.com/oss/python/langchain/install) & [Install LangGraph](https://docs.langchain.com/oss/python/langgraph/install) on LangChain Docs or [Download Ollama](https://ollama.com/download)*
 
 **Download models on ollama:** 
 
 ```bash
-ollama pull gemma4
+ollama pull gemma4:31b
 
-ollama pull embeddinggemma
+ollama pull qwen3.6:35b 
 ```
 
-If you want to use other models, dont forget to adjust `model` & `EMBEDDING_MODEL` in rag-pipeline/ chroma-db/ and langgraph-server/ in all .py scripts (or .env files)
+If you want to use other models, dont forget to adjust `LLM_MODEL` in the config file
 
 **Dependencies:** 
 
-rag-pipeline/ chroma-db/ and langgraph-server/ need these dependencies in their `pyproject.toml`:
+langgraph-server/, graph-framework/, prompt-engineer/ and qa_generator/ need these dependencies in their `pyproject.toml`:
 
 `uv add langchain langchain-core langchain-community langchain-ollama langgraph langgraph-cli[inmem] langchain-text-splitters langchain-chroma black python-dotenv`
 
 apply the depencencies with `uv sync` as follows:
 
 ```bash
-cd chroma-db/
+cd prompt-engineer/
 uv sync
 
-cd ../rag-pipeline/
+cd ../qa_generator/
+uv sync
+
+cd ../graph-framework/
 uv sync
 
 cd ../langgraph-server/
@@ -82,23 +111,8 @@ source .venv/bin/activate
 uv sync --dev
 ```
 
-## Components:
-
-**rag-pipeline/** raw agentic RAG framework. it can be used to make single queries in the terminal
-
-**langgraph-server/** contains the rag-pipeline/ framework and is hosting the agent for the chat interface
-
-**chroma-db/** contains a persistant vector database and a script `ingestion_example.py` to add documents to the db
-
-**agent-chat-ui/** server for chat interface, connecting with langgraph-server/, client running in Browser
 
 ## Usage
-
-**chroma-db**
-
-Open `ingestion_example.py` in an editor and set `DOCUMENT_PATH` to the document,that needs to be added to the DB.
-
-Save and execute the script.
 
 **agent-chat-ui** in a terminal:
 
@@ -117,19 +131,39 @@ When running the Server for the first time, you need to enter the Agent/Graph-ID
 ```bash
 cd langgraph-server/
 
-uv run langgraph dev
+uv run langgraph dev --no-reload --no-browser
 ```
+
+**Manual**
+
+In the chat ui type `/manual` or click on `Manual` to open the User Manual 
+
+## Troubleshooting
+
+If the Agent seems to get stuck in generating and the `Cancel` button doesnt react, first try restart the agent-chat-ui server.
+
+- Stop and restart the server in the terminal: 1. `ctrl + C` 2. `pnpm dev`
+- Wait till the server is up and reload the ,page in the Browser
+
+If a server restart doesnt help, you must reset the langgraph-server:
+
+- Stop the server in the terminal by spamming `ctrl + C`
+- Navigate to .../LogfileAnalyzer/langgraph-server/
+- Delete the .langgraph_api/ folder
+- Restart the server in the terminal: `uv run langgraph dev --no-reload --no-browser`
+- Reopen the agent-chat-ui in the browser with the root URL `localhost:3000`
+
+Note: all threads and messages get deleted during this process.
 
 ## ToDo:
 
-- Dokumentation
-- chroma-db skript zum erstellen & pflegen
-- .env globale Variablen (?)
-- modelle testen
-- suchmethode testen
-- prompt engineering
-- image implementation
-- multi agent + adaptive agent rag implementation
+- ==Dokumentation==
 
-- readme.md beschreibt die Anwendung vom Repository
-- info.md beschreibt die Architektur
+
+- [ ] readme.md beschreibt die Anwendung vom Repository
+- [x] info.md beschreibt die Architektur
+- [ ] prompt architektur dokumentieren
+
+term
+: definition
+

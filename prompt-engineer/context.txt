@@ -1,0 +1,5 @@
+the "just LLM" (pls find a better name for it) is being invoked in 2 cases:
+
+case 1: query first goes to a single retrieval. the retrieved value is being appended to the query and this is being given to the "just llm" to synthesize an answer
+
+case 2: no retrieval. the query goes straight to the llm. either context is in the query or in the messages history. it doesnt matter if the query is off topic.

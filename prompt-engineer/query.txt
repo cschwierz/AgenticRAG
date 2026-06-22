@@ -1,0 +1,1 @@
+here in template i have a prompt for a "just llm" from a adaptive rag agent. check in context how the llm is being implemented and refactor the template prompt.

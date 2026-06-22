@@ -27,17 +27,18 @@ CHANGELOG:
 # --- Imports ---
 
 from langgraph.graph import StateGraph, START, END
-from rag_agent.nodes import *
+from langchain.messages import HumanMessage
+from nodes import *
 import os
 import json
 
 # --- Configs ---
 
 #with open("/home/chris/LogfileAnalyzer/config/config.json", "r") as filejson:
-#with open("C:\\Users\\chris\\Documents\\Workspace\\LogfileAnalyzer\\config\\config_win.json", "r") as filejson:
-#    config = json.load(filejson)
+with open("C:\\Users\\chris\\Documents\\Workspace\\LogfileAnalyzer\\config\\config_win.json", "r") as filejson:
+    config = json.load(filejson)
 
-# QUERY_SAMPLE = config["QUERY_SAMPLE"]
+QUERY_SAMPLE = config["QUERY_SAMPLE"]
 
 # --- Graphs ---
 
@@ -80,11 +81,11 @@ graph_builder.add_conditional_edges("reflect_node", reflect_edge, ["orchestrator
 
 graph = graph_builder.compile()
 
-# print(agent.get_graph().draw_mermaid())
-# print(agent.get_graph().draw_ascii())
+print(graph.get_graph().draw_mermaid())
+print(graph.get_graph().draw_ascii())
 
 # --- Invoke ---
-# messages = [HumanMessage(content=f"{QUERY_SAMPLE}")]
-# messages = agent.invoke({"messages": messages})
-# for m in messages["messages"]:
-#    m.pretty_print()
+messages = [HumanMessage(content=f"{QUERY_SAMPLE}")]
+messages = graph.invoke({"messages": messages})
+for m in messages["messages"]:
+    m.pretty_print()

@@ -1,4 +1,5 @@
 .vs
-data-collection/
-agent-chat-ui/
+logfile-sammlung/sample/
+temp/
 chroma-db/db/
+agent-chat-ui/
